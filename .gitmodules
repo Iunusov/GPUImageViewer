@@ -1,0 +1,9 @@
+[submodule "deps/fltk"]
+	path = deps/fltk
+	url = https://github.com/fltk/fltk
+[submodule "deps/SDL/SDL_Image"]
+	path = deps/SDL/SDL_Image
+	url = https://github.com/libsdl-org/SDL_image
+[submodule "deps/SDL/SDL"]
+	path = deps/SDL/SDL
+	url = https://github.com/libsdl-org/SDL
