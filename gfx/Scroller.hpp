@@ -19,6 +19,7 @@ public:
   float getScale() const noexcept;
   void execute() noexcept;
 
-  std::chrono::time_point<std::chrono::steady_clock> ts;
+  std::chrono::time_point<std::chrono::steady_clock> ts{
+      std::chrono::steady_clock::now()};
   bool escape_key_pressed{};
 };
