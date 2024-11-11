@@ -43,14 +43,14 @@ void Scroller::execute() noexcept {
       default:
         break;
       }
+      ts = std::chrono::steady_clock::now();
     }
 
     else if (event.type == SDL_EVENT_MOUSE_WHEEL) {
       scale += (event.wheel.y > ZERO_FLOAT
                     ? (scale < MAX_SCALE ? SCALE_STEP : ZERO_FLOAT)
                     : (scale > MIN_SCALE ? -SCALE_STEP : ZERO_FLOAT));
+      ts = std::chrono::steady_clock::now();
     }
-
-    ts = std::chrono::steady_clock::now();
   }
 }

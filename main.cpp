@@ -15,18 +15,23 @@
 #include <FL/x.H>
 
 void window_callback(Fl_Widget *) {
-
   if (Fl::event() == FL_SHORTCUT && Fl::event_key() == FL_Escape) {
-    // don't do anything when the Escape key is pressed
-  } else {
-    // exit when the user closes the window
     exit(0);
   }
 }
 
-#undef main
 int main(int argc, char **argv) {
   Fl::scheme("gtk+");
+
+  SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_NAME_STRING,
+                             "GPUImageViewer");
+  SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_VERSION_STRING, "0.0.2");
+  SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_IDENTIFIER_STRING,
+                             "com.iunusov.gpuimageviewer");
+  SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_CREATOR_STRING,
+                             "Artur Iunusov");
+  SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_URL_STRING,
+                             "https://github.com/iunusov/gpuimageviewer");
 
   int w;
   int h;
@@ -71,14 +76,23 @@ int main(int argc, char **argv) {
     VideoContextSDL::GetInstance()->setup();
     IRenderer *renderer = new Renderer2D{VideoContextSDL::GetInstance()};
     Scroller scroller{};
+    renderer->Render(scroller.GetCameraPos(), scroller.getScale(), photos);
 
     const size_t expectedMS{
         (size_t)(1000.0 / VideoContextSDL::GetInstance()->getFps())};
 
+    scroller.ts = std::chrono::steady_clock::now();
     while (!scroller.escape_key_pressed) {
+      scroller.execute();
       const auto start{std::chrono::steady_clock::now()};
 
-      scroller.execute();
+      // do not bother GPU if there are no updates
+      if (std::chrono::duration_cast<std::chrono::seconds>(start - scroller.ts)
+              .count() >= 5) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        continue;
+      }
+
       renderer->Render(scroller.GetCameraPos(), scroller.getScale(), photos);
       const auto end{std::chrono::steady_clock::now()};
 
