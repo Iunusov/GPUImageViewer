@@ -1,7 +1,7 @@
 #pragma once
 
 struct Coord final {
-  using T = double;
+  using T = float;
   T x{0};
   T y{0};
 

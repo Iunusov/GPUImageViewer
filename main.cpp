@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
 
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_NAME_STRING,
                              "GPUImageViewer");
-  SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_VERSION_STRING, "0.0.2");
+  SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_VERSION_STRING, "1.0.0");
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_IDENTIFIER_STRING,
                              "com.iunusov.gpuimageviewer");
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_CREATOR_STRING,
@@ -75,11 +75,10 @@ int main(int argc, char **argv) {
     VideoContextSDL::Create(fl_xid(&window));
     VideoContextSDL::GetInstance()->setup();
     IRenderer *renderer = new Renderer2D{VideoContextSDL::GetInstance()};
-    Scroller scroller{};
+    const float expectedMS{
+        (float)(1000.0f / VideoContextSDL::GetInstance()->getFps())};
+    Scroller scroller{expectedMS};
     renderer->Render(scroller.GetCameraPos(), scroller.getScale(), photos);
-
-    const size_t expectedMS{
-        (size_t)(1000.0 / VideoContextSDL::GetInstance()->getFps())};
 
     scroller.ts = std::chrono::steady_clock::now();
     while (!scroller.escape_key_pressed) {
@@ -88,7 +87,7 @@ int main(int argc, char **argv) {
 
       // do not bother GPU if there are no updates
       if (std::chrono::duration_cast<std::chrono::seconds>(start - scroller.ts)
-              .count() >= 5) {
+              .count() >= 2) {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         continue;
       }
@@ -96,9 +95,10 @@ int main(int argc, char **argv) {
       renderer->Render(scroller.GetCameraPos(), scroller.getScale(), photos);
       const auto end{std::chrono::steady_clock::now()};
 
-      const auto elapsedMS{(size_t)(
-          std::chrono::duration_cast<std::chrono::milliseconds>(end - start)
-              .count())};
+      const auto elapsedMS{
+          (float)(std::chrono::duration_cast<std::chrono::milliseconds>(end -
+                                                                        start)
+                      .count())};
 
       if (expectedMS > elapsedMS) {
         renderer->Delay((size_t)(expectedMS - elapsedMS));

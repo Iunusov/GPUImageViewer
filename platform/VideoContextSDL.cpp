@@ -28,9 +28,8 @@ __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 namespace {
 
 void drawTexture(SDL_Renderer *rend, const std::string &path, const double x,
-                 const double y, const double heading, const double camX,
-                 const double camY, const int w, const int h,
-                 const double scale) {
+                 const double y, const double camX, const double camY,
+                 const int w, const int h, const double scale) {
 
   static std::unordered_map<std::string, std::tuple<SDL_Texture *, SDL_FRect *>>
       textures;
@@ -237,6 +236,6 @@ void VideoContextSDL::setup() noexcept {
 }
 
 void VideoContextSDL::draw(const std::string &obj) noexcept {
-  drawTexture(rend, obj, MAX_COORD / 2.0, MAX_COORD / 2.0, 0, cameraPosition.x,
-              cameraPosition.y, w, h, (double)m_scale);
+  drawTexture(rend, obj, 0, 0, cameraPosition.x, cameraPosition.y, w, h,
+              (double)m_scale);
 }

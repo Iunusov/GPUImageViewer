@@ -34,7 +34,8 @@ public:
   void setScale(float scale) noexcept override {
     m_scale = scale;
     SDL_SetRenderScale(rend, m_scale, m_scale);
-    SDL_Rect viewport{0, 0, (int)(w / m_scale), (int)(h / m_scale)};
+    SDL_Rect viewport{0, 0, (int)((float)w / m_scale),
+                      (int)((float)h / m_scale)};
     SDL_SetRenderViewport(rend, &viewport);
   }
 
