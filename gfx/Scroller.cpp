@@ -58,7 +58,10 @@ void Scroller::execute() noexcept {
 
     else if (event.type == SDL_EVENT_MOUSE_WHEEL) {
       ts = std::chrono::steady_clock::now();
-      m_zoom_direction = event.wheel.y > ZERO_FLOAT ? ONE_FLOAT : -ONE_FLOAT;
+      if(m_wheel_y > ZERO_FLOAT && event.wheel.y > ZERO_FLOAT || m_wheel_y < ZERO_FLOAT && event.wheel.y < ZERO_FLOAT){
+        m_zoom_direction = event.wheel.y > ZERO_FLOAT ? ONE_FLOAT : -ONE_FLOAT;
+      }
+      m_wheel_y = event.wheel.y;
     }
   }
 
@@ -70,7 +73,7 @@ void Scroller::execute() noexcept {
   m_position.x +=
       (m_time_per_frame_ms * m_h_direction * SCALE_STEP * 10.0f) / getScale();
 
-  float const step{0.5f};
+  float const step{0.1f};
   m_zoom_direction += m_zoom_direction > ZERO_FLOAT ? -step : step;
   if (m_zoom_direction <= step && m_zoom_direction >= -step) {
     m_zoom_direction = ZERO_FLOAT;

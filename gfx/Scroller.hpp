@@ -8,9 +8,10 @@
 class Scroller final {
 private:
   float m_scale{1.0f};
-  Coord m_position{0.0f, 0.0f};
-  float m_v_direction{0}, m_h_direction{0}, m_zoom_direction{0};
-  float m_time_per_frame_ms{0};
+  Coord m_position{};
+  float m_v_direction{}, m_h_direction{}, m_zoom_direction{};
+  float m_time_per_frame_ms{};
+  float m_wheel_y{};
 
 public:
   Scroller(float ms) noexcept : m_time_per_frame_ms{ms} {}
