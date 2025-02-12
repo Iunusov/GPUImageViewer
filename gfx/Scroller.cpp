@@ -15,6 +15,7 @@ constexpr auto P4 = [](float a) { return a * a * a * a; };
 Coord Scroller::GetCameraPos() const noexcept { return m_position; }
 
 float Scroller::getScale() const noexcept { return P4(m_scale); }
+double Scroller::getAngle() const noexcept { return m_angle; }
 
 void Scroller::execute() noexcept {
   // Get the next event
@@ -43,6 +44,14 @@ void Scroller::execute() noexcept {
         m_h_direction =
             event.type == SDL_EVENT_KEY_DOWN ? ONE_FLOAT : ZERO_FLOAT;
         break;
+     case SDLK_R:
+        if(event.type == SDL_EVENT_KEY_DOWN){
+			if(m_angle >= 360.0f){
+				m_angle = ZERO_FLOAT;
+			}
+			m_angle += 90.0f;
+		}
+        break;
       case SDLK_ESCAPE:
         escape_key_pressed = true;
         break;
@@ -50,6 +59,7 @@ void Scroller::execute() noexcept {
         m_scale = ONE_FLOAT;
         m_position.y = ZERO_FLOAT;
         m_position.x = ZERO_FLOAT;
+		m_angle = ZERO_FLOAT;
         break;
       default:
         break;

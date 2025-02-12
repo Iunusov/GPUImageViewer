@@ -14,6 +14,6 @@ public:
   Renderer2D(IVideoContext *ctx_) noexcept : ctx{ctx_} {}
   void Delay(size_t ms) noexcept override { ctx->delay(ms); }
 
-  void Render(const Coord &pos, float scale,
+  void Render(const Coord &pos, float scale, double angle,
               const std::vector<std::string> &Objects) noexcept override;
 };

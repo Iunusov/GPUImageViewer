@@ -12,11 +12,13 @@ private:
   float m_v_direction{}, m_h_direction{}, m_zoom_direction{};
   float m_time_per_frame_ms{};
   float m_wheel_y{};
+  double m_angle{};
 
 public:
   Scroller(float ms) noexcept : m_time_per_frame_ms{ms} {}
   Coord GetCameraPos() const noexcept;
   float getScale() const noexcept;
+  double getAngle() const noexcept;
   void execute() noexcept;
 
   std::chrono::time_point<std::chrono::steady_clock> ts{

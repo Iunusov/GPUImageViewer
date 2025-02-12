@@ -29,7 +29,7 @@ namespace {
 
 void drawTexture(SDL_Renderer *rend, const std::string &path, const double x,
                  const double y, const double camX, const double camY,
-                 const int w, const int h, const double scale) {
+                 const int w, const int h, const double scale, const double angle) {
 
   static std::unordered_map<std::string, std::tuple<SDL_Texture *, SDL_FRect *>>
       textures;
@@ -50,7 +50,7 @@ void drawTexture(SDL_Renderer *rend, const std::string &path, const double x,
 
   dest->y = (float)Math::CalculateScreenPosition(y, dest->h, camY, h, scale);
 
-  SDL_RenderTextureRotated(rend, txt, NULL, dest, 0, nullptr, SDL_FLIP_NONE);
+  SDL_RenderTextureRotated(rend, txt, NULL, dest, angle, nullptr, SDL_FLIP_NONE);
 }
 
 } // namespace
@@ -237,5 +237,5 @@ void VideoContextSDL::setup() noexcept {
 
 void VideoContextSDL::draw(const std::string &obj) noexcept {
   drawTexture(rend, obj, 0, 0, cameraPosition.x, cameraPosition.y, w, h,
-              (double)m_scale);
+              (double)m_scale, m_angle);
 }

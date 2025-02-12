@@ -15,6 +15,7 @@ private:
   static IVideoContext *instance;
   SDL_Renderer *rend = nullptr;
   float m_scale{1};
+  double m_angle{};
   Coord cameraPosition;
   SDL_Window *win = nullptr;
   int w{};
@@ -38,6 +39,9 @@ public:
                       (int)((float)h / m_scale)};
     SDL_SetRenderViewport(rend, &viewport);
   }
+    void setAngle(double angle) noexcept override {
+		m_angle = angle;
+	}
 
   int getWidth() const noexcept override { return w; }
   int getHeigt() const noexcept override { return h; }
