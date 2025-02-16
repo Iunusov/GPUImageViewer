@@ -44,13 +44,13 @@ void Scroller::execute() noexcept {
         m_h_direction =
             event.type == SDL_EVENT_KEY_DOWN ? ONE_FLOAT : ZERO_FLOAT;
         break;
-     case SDLK_R:
-        if(event.type == SDL_EVENT_KEY_DOWN){
-			if(m_angle >= 360.0f){
-				m_angle = ZERO_FLOAT;
-			}
-			m_angle += 90.0f;
-		}
+      case SDLK_R:
+        if (event.type == SDL_EVENT_KEY_DOWN) {
+          if (m_angle >= 360.0f) {
+            m_angle = ZERO_FLOAT;
+          }
+          m_angle += 90.0f;
+        }
         break;
       case SDLK_ESCAPE:
         escape_key_pressed = true;
@@ -59,7 +59,7 @@ void Scroller::execute() noexcept {
         m_scale = ONE_FLOAT;
         m_position.y = ZERO_FLOAT;
         m_position.x = ZERO_FLOAT;
-		m_angle = ZERO_FLOAT;
+        m_angle = ZERO_FLOAT;
         break;
       default:
         break;
@@ -68,7 +68,8 @@ void Scroller::execute() noexcept {
 
     else if (event.type == SDL_EVENT_MOUSE_WHEEL) {
       ts = std::chrono::steady_clock::now();
-      if(m_wheel_y > ZERO_FLOAT && event.wheel.y > ZERO_FLOAT || m_wheel_y < ZERO_FLOAT && event.wheel.y < ZERO_FLOAT){
+      if (m_wheel_y > ZERO_FLOAT && event.wheel.y > ZERO_FLOAT ||
+          m_wheel_y < ZERO_FLOAT && event.wheel.y < ZERO_FLOAT) {
         m_zoom_direction = event.wheel.y > ZERO_FLOAT ? ONE_FLOAT : -ONE_FLOAT;
       }
       m_wheel_y = event.wheel.y;

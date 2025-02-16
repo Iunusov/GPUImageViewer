@@ -15,5 +15,6 @@ public:
   virtual int getHeigt() const noexcept = 0;
   virtual float getFps() const noexcept = 0;
   virtual void delay(size_t) const noexcept = 0;
+  virtual size_t getMaxTextureSize() const noexcept = 0;
   virtual ~IVideoContext() noexcept = default;
 };

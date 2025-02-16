@@ -78,7 +78,8 @@ int main(int argc, char **argv) {
     const float expectedMS{
         (float)(1000.0f / VideoContextSDL::GetInstance()->getFps())};
     Scroller scroller{expectedMS};
-    renderer->Render(scroller.GetCameraPos(), scroller.getScale(), scroller.getAngle(), photos);
+    renderer->Render(scroller.GetCameraPos(), scroller.getScale(),
+                     scroller.getAngle(), photos);
 
     scroller.ts = std::chrono::steady_clock::now();
     while (!scroller.escape_key_pressed) {
@@ -92,7 +93,8 @@ int main(int argc, char **argv) {
         continue;
       }
 
-      renderer->Render(scroller.GetCameraPos(), scroller.getScale(), scroller.getAngle(), photos);
+      renderer->Render(scroller.GetCameraPos(), scroller.getScale(),
+                       scroller.getAngle(), photos);
       const auto end{std::chrono::steady_clock::now()};
 
       const auto elapsedMS{

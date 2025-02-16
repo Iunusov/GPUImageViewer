@@ -31,6 +31,7 @@ public:
   ~VideoContextSDL() noexcept override;
 
   void setCamera(const Coord &pos) noexcept override { cameraPosition = pos; }
+  size_t getMaxTextureSize() const noexcept override;
 
   void setScale(float scale) noexcept override {
     m_scale = scale;
@@ -39,9 +40,7 @@ public:
                       (int)((float)h / m_scale)};
     SDL_SetRenderViewport(rend, &viewport);
   }
-    void setAngle(double angle) noexcept override {
-		m_angle = angle;
-	}
+  void setAngle(double angle) noexcept override { m_angle = angle; }
 
   int getWidth() const noexcept override { return w; }
   int getHeigt() const noexcept override { return h; }

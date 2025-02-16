@@ -29,7 +29,8 @@ namespace {
 
 void drawTexture(SDL_Renderer *rend, const std::string &path, const double x,
                  const double y, const double camX, const double camY,
-                 const int w, const int h, const double scale, const double angle) {
+                 const int w, const int h, const double scale,
+                 const double angle) {
 
   static std::unordered_map<std::string, std::tuple<SDL_Texture *, SDL_FRect *>>
       textures;
@@ -50,7 +51,8 @@ void drawTexture(SDL_Renderer *rend, const std::string &path, const double x,
 
   dest->y = (float)Math::CalculateScreenPosition(y, dest->h, camY, h, scale);
 
-  SDL_RenderTextureRotated(rend, txt, NULL, dest, angle, nullptr, SDL_FLIP_NONE);
+  SDL_RenderTextureRotated(rend, txt, NULL, dest, angle, nullptr,
+                           SDL_FLIP_NONE);
 }
 
 } // namespace
@@ -200,6 +202,8 @@ void VideoContextSDL::setup() noexcept {
     SDL_Quit();
     return;
   }
+
+  SDL_Log("max texture size: %d", getMaxTextureSize());
   if (vsync_option == "1") {
     SDL_SetRenderVSync(rend, SDL_RENDERER_VSYNC_ADAPTIVE);
   }
@@ -238,4 +242,11 @@ void VideoContextSDL::setup() noexcept {
 void VideoContextSDL::draw(const std::string &obj) noexcept {
   drawTexture(rend, obj, 0, 0, cameraPosition.x, cameraPosition.y, w, h,
               (double)m_scale, m_angle);
+}
+
+size_t VideoContextSDL::getMaxTextureSize() const noexcept {
+  SDL_PropertiesID props = SDL_GetRendererProperties(rend);
+  Sint64 size = SDL_GetNumberProperty(
+      props, SDL_PROP_RENDERER_MAX_TEXTURE_SIZE_NUMBER, 0);
+  return size > 0 ? size : 0;
 }
