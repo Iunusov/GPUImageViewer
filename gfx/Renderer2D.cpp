@@ -8,12 +8,11 @@ void Renderer2D::Render(const Coord &pos, float scale, double angle,
 
   ctx->setScale(scale);
   ctx->setAngle(angle);
+  ctx->setCamera(pos);
 
   for (const auto &obj : Objects) {
     ctx->draw(obj);
   }
-
-  ctx->setCamera(pos);
 
   ctx->present();
 }
