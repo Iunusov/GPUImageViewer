@@ -33,14 +33,14 @@ int main(int argc, char **argv) {
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_URL_STRING,
                              "https://github.com/iunusov/gpuimageviewer");
 
-  int w;
-  int h;
+  size_t w{};
+  size_t h{};
   SDL_Init(SDL_INIT_VIDEO);
   VideoContextSDL::getPrimaryDisplayResolution(w, h);
   SDL_Quit();
 
   // Create main window
-  auto window{Fl_Window(w, h, "GPUImageViewer")};
+  auto window{Fl_Window((int)w, (int)h, "GPUImageViewer")};
   window.callback(window_callback);
   window.color(FL_BLACK);
   window.resizable(window);
