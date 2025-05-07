@@ -3,7 +3,6 @@
 Image viewer, but with GPU acceleration.
 
 Use keyboard arrows for scrolling.<br>
-'R' - for rotation<br>
 'Escape' - exit
 
 1. Install dependencies (Ubuntu)

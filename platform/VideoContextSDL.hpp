@@ -42,15 +42,15 @@ public:
   }
   void setAngle(double angle) noexcept override { m_angle = angle; }
 
-  int getWidth() const noexcept override { return w; }
-  int getHeigt() const noexcept override { return h; }
+  size_t getWidth() const noexcept override { return w; }
+  size_t getHeigt() const noexcept override { return h; }
   float getFps() const noexcept override { return m_fps; }
   INLINE void clear() noexcept override;
   INLINE void delay(size_t ms) const noexcept override;
   void present() noexcept override;
   INLINE void draw(const std::string &obj) noexcept override;
   void setup() noexcept override;
-  static void getPrimaryDisplayResolution(int &w, int &h) noexcept {
+  static void getPrimaryDisplayResolution(size_t &w, size_t &h) noexcept {
     auto dmode = SDL_GetCurrentDisplayMode(SDL_GetPrimaryDisplay());
     w = dmode->w;
     h = dmode->h;
