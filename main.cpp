@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
 
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_NAME_STRING,
                              "GPUImageViewer");
-  SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_VERSION_STRING, "1.1.0");
+  SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_VERSION_STRING, "1.2.0");
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_IDENTIFIER_STRING,
                              "com.iunusov.gpuimageviewer");
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_CREATOR_STRING,
@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
   size_t w{};
   size_t h{};
   SDL_Init(SDL_INIT_VIDEO);
-  VideoContextSDL::getPrimaryDisplayResolution(w, h);
+  SDLUtils::getPrimaryDisplayResolution(w, h);
   SDL_Quit();
 
   // Create main window
@@ -49,11 +49,13 @@ int main(int argc, char **argv) {
 
   Fl_Native_File_Chooser chooser;
   chooser.title("Select the image");
-  chooser.type(Fl_Native_File_Chooser::BROWSE_FILE);
+  chooser.type(Fl_Native_File_Chooser::BROWSE_MULTI_FILE);
 
   std::vector<std::string> photos;
   if (argc >= 2) {
-    photos.emplace_back(argv[1]);
+    for (int i(1); i < argc; i++) {
+      photos.emplace_back(argv[i]);
+    }
   }
 
   if (!photos.size())
@@ -66,7 +68,11 @@ int main(int argc, char **argv) {
       break;
     default:
       photos.clear();
-      photos.emplace_back(chooser.filename());
+
+      for (int i(0); i < chooser.count(); ++i) {
+        photos.emplace_back(chooser.filename(i));
+      }
+
       break; // FILE CHOSEN
     }
 
@@ -75,11 +81,21 @@ int main(int argc, char **argv) {
     VideoContextSDL::Create(fl_xid(&window));
     VideoContextSDL::GetInstance()->setup();
     IRenderer *renderer = new Renderer2D{VideoContextSDL::GetInstance()};
+    for (const auto &photo : photos) {
+      renderer->Load(photo);
+    }
+
     const float expectedMS{
         (float)(1000.0f / VideoContextSDL::GetInstance()->getFps())};
     Scroller scroller{expectedMS};
+    const auto camPoints = VideoContextSDL::GetInstance()->getCameraPoints();
+    for (const auto &point : camPoints) {
+      scroller.pushCameraPoint(point);
+      // std::cout<<point<<std::endl;
+    }
+
     renderer->Render(scroller.GetCameraPos(), scroller.getScale(),
-                     scroller.getAngle(), photos);
+                     scroller.getAngle());
 
     scroller.ts = std::chrono::steady_clock::now();
     while (!scroller.escape_key_pressed) {
@@ -92,9 +108,10 @@ int main(int argc, char **argv) {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         continue;
       }
-
+      // std::cout<<scroller.GetCameraPos().x<<"
+      // "<<scroller.GetCameraPos().y<<std::endl;
       renderer->Render(scroller.GetCameraPos(), scroller.getScale(),
-                       scroller.getAngle(), photos);
+                       scroller.getAngle());
       const auto end{std::chrono::steady_clock::now()};
 
       const auto elapsedMS{

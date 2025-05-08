@@ -2,17 +2,11 @@
 #include "Config.hpp"
 #include <string>
 
-void Renderer2D::Render(const Coord &pos, float scale, double angle,
-                        const std::vector<std::string> &Objects) noexcept {
+void Renderer2D::Render(const Coord &pos, float scale, double angle) noexcept {
   ctx->clear();
-
   ctx->setScale(scale);
   ctx->setAngle(angle);
   ctx->setCamera(pos);
-
-  for (const auto &obj : Objects) {
-    ctx->draw(obj);
-  }
-
+  ctx->draw();
   ctx->present();
 }

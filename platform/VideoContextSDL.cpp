@@ -7,6 +7,7 @@
 #include <unordered_map>
 
 #include "Math.hpp"
+#include <cmath>
 #include <fstream>
 
 #include "Config.hpp"
@@ -19,82 +20,6 @@ extern "C" {
 __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 }
 #endif
-
-namespace {
-struct Tile {
-  SDL_Texture *texture = nullptr;
-  SDL_FRect dest{};
-};
-bool loadImageTilesToGPU(SDL_Renderer *renderer, const std::string &filePath,
-                         std::vector<Tile> &tiles, int &imgW, int &imgH) {
-  SDL_Surface *surface = IMG_Load(filePath.c_str());
-  if (!surface) {
-    SDL_Log("IMG_Load failed");
-    return false;
-  }
-
-  imgW = surface->w;
-  imgH = surface->h;
-
-  for (int y = 0; y < imgH; y += TILE_SIZE) {
-    for (int x = 0; x < imgW; x += TILE_SIZE) {
-      SDL_Rect srcRect = {x, y, TILE_SIZE, TILE_SIZE};
-      if (x + TILE_SIZE > imgW){
-        srcRect.w = imgW - x;
-      }
-      if (y + TILE_SIZE > imgH){
-        srcRect.h = imgH - y;
-      }
-      if (srcRect.w <= 0 || srcRect.h <= 0) {
-        continue;
-      }
-
-      SDL_Surface *tileSurface =
-          SDL_CreateSurface(srcRect.w, srcRect.h, SDL_PIXELFORMAT_RGBA32);
-
-      if (!tileSurface) {
-        SDL_Log("SDL_CreateSurface failed");
-        return false;
-      }
-
-      SDL_BlitSurface(surface, &srcRect, tileSurface, nullptr);
-	  Tile tile = {SDL_CreateTextureFromSurface(renderer, tileSurface),
-                       {(float)srcRect.x, (float)srcRect.y, (float)srcRect.w,
-                        (float)srcRect.h}};
-      SDL_DestroySurface(tileSurface);
-      tiles.emplace_back(std::move(tile));
-    }
-  }
-
-  SDL_DestroySurface(surface);
-  return true;
-}
-
-void drawTexture(SDL_Renderer *rend, const std::string &path, const double camX,
-                 const double camY, const size_t w, const size_t h,
-                 const double scale) {
-  static int imgW{};
-  static int imgH{};
-  static std::unordered_map<std::string, std::vector<Tile>> mCache;
-
-  if (!imgW) {
-    loadImageTilesToGPU(rend, path, mCache[path], imgW, imgH);
-  }
-
-  for (auto &tile : mCache[path]) {
-    SDL_FRect rect = {
-        (float)Math::CalculateScreenPosition((double)tile.dest.x, (double)imgW,
-                                             camX, (double)w, scale),
-        (float)Math::CalculateScreenPosition((double)tile.dest.y, (double)imgH,
-                                             camY, (double)h, scale),
-        tile.dest.w, tile.dest.h};
-
-    SDL_RenderTextureRotated(rend, tile.texture, NULL, &rect, 0, nullptr,
-                             SDL_FLIP_NONE);
-  }
-}
-
-} // namespace
 
 IVideoContext *VideoContextSDL::instance = nullptr;
 
@@ -242,7 +167,7 @@ void VideoContextSDL::setup() noexcept {
     return;
   }
 
-  SDL_Log("max texture size: %d", getMaxTextureSize());
+  SDL_Log("max texture size: %ld", getMaxTextureSize());
   if (vsync_option == "1") {
     SDL_SetRenderVSync(rend, SDL_RENDERER_VSYNC_ADAPTIVE);
   }
@@ -278,9 +203,49 @@ void VideoContextSDL::setup() noexcept {
   SDL_Log(0);
 }
 
-void VideoContextSDL::draw(const std::string &obj) noexcept {
-  drawTexture(rend, obj, cameraPosition.x, cameraPosition.y, w, h,
-              (double)m_scale);
+void VideoContextSDL::load(const std::string &path) noexcept {
+  if (!rend) {
+    return;
+  }
+  std::tuple<std::string, int, int, std::vector<SDLUtils::Tile>> result;
+  std::get<0>(result) = path;
+  if (SDLUtils::loadImageTilesToGPU(rend, std::get<0>(result),
+                                    std::get<3>(result), std::get<1>(result),
+                                    std::get<2>(result))) {
+    mImages.emplace_back(std::move(result));
+  }
+}
+
+void VideoContextSDL::draw() noexcept {
+  // std::vector<std::tuple<std::string,int,int,std::vector<SDLUtils::Tile>>>
+  // mImages{};
+  double paddingY = 0.0;
+  bool first = true;
+  for (const auto &image : mImages) {
+    const double imageHeight = static_cast<double>(std::get<2>(image));
+    double offsetY = first ? 0.0 : paddingY + imageHeight / 2.0;
+    for (const auto &tile : std::get<3>(image)) {
+      SDL_FRect rect = {(float)Math::CalculateScreenPosition(
+                            (double)tile.dest.x, (double)std::get<1>(image),
+                            cameraPosition.x, (double)w, m_scale),
+                        (float)Math::CalculateScreenPosition(
+                            (double)tile.dest.y + offsetY,
+                            (double)std::get<2>(image), cameraPosition.y,
+                            (double)h, m_scale),
+                        tile.dest.w, tile.dest.h};
+
+      // rect.x=0; rect.y=0;
+      if (rect.x + rect.w < 0 || rect.x > w / m_scale || rect.y + rect.h < 0 ||
+          rect.y > h / m_scale) {
+        continue;
+      }
+
+      SDL_RenderTextureRotated(rend, tile.texture, NULL, &rect, 0, nullptr,
+                               SDL_FLIP_NONE);
+    }
+    paddingY += (first ? imageHeight / 2.0 : imageHeight) + PADDING_PX;
+    first = false;
+  }
 }
 
 size_t VideoContextSDL::getMaxTextureSize() const noexcept {

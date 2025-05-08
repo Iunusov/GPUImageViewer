@@ -1,5 +1,6 @@
 #pragma once
 #include <numbers>
+#include <type_traits>
 
 namespace Math {
 constexpr double CalculateScreenPosition(const double obj_coord,
@@ -11,4 +12,8 @@ constexpr double CalculateScreenPosition(const double obj_coord,
          (screen_resolution / 2.0) / zoom_value;
 }
 
+static_assert(CalculateScreenPosition(-500.0, 80.0, 0.0, 1080.0, 1.0) == 0.0,
+              "");
+static_assert(CalculateScreenPosition(0.0, 120.0, 0.0, 1920.0, 1.0) == 900.0,
+              "");
 } // namespace Math

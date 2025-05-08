@@ -5,10 +5,13 @@
 #include <FL/Fl.H>
 #include <FL/Fl_Window.H>
 #include <FL/x.H>
+#include <tuple>
+#include <vector>
 
 #include "Coord.hpp"
 #include "CppHacks.hpp"
 #include "IVideoContext.hpp"
+#include "SDLUtils.hpp"
 
 class VideoContextSDL final : public IVideoContext {
 private:
@@ -22,8 +25,17 @@ private:
   int h{};
   float m_fps = 100.0f;
   Window mainWindow{};
+  std::vector<std::tuple<std::string, int, int, std::vector<SDLUtils::Tile>>>
+      mImages{};
 
 public:
+  std::vector<float> getCameraPoints() const noexcept override {
+    std::vector<float> result;
+    for (const auto &image : mImages) {
+      result.emplace_back((float)std::get<2>(image));
+    }
+    return result;
+  }
   static void Create(Window) noexcept;
   static IVideoContext *GetInstance() noexcept { return instance; }
   VideoContextSDL(Window data) { mainWindow = data; }
@@ -48,11 +60,7 @@ public:
   INLINE void clear() noexcept override;
   INLINE void delay(size_t ms) const noexcept override;
   void present() noexcept override;
-  INLINE void draw(const std::string &obj) noexcept override;
+  INLINE void draw() noexcept override;
+  INLINE void load(const std::string &obj) noexcept override;
   void setup() noexcept override;
-  static void getPrimaryDisplayResolution(size_t &w, size_t &h) noexcept {
-    auto dmode = SDL_GetCurrentDisplayMode(SDL_GetPrimaryDisplay());
-    w = dmode->w;
-    h = dmode->h;
-  }
 };
