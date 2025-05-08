@@ -1,6 +1,7 @@
 ## GPU Image Viewer
 
 Image viewer, but with GPU acceleration.
+Supports extra large images
 
 Use keyboard arrows for scrolling.<br>
 'Escape' - exit
